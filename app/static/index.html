@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Hut - Assistente Pizza Hut para Pizzas Deliciosas</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <script src="/static/js/app.js" type="module"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --pizzahut-red: #C8102E;
+        --pizzahut-dark-red: #A51A1A;
+        --pizzahut-white: #FFFFFF;
+        --pizzahut-cream: #FFF8F5;
+        --pizzahut-gray: #424242;
+        --pizzahut-light-gray: #F5F5F5;
+        --text-dark: #2D1B1B;
+        --text-light: #FFFFFF;
+        --shadow: rgba(200, 16, 46, 0.15);
+        --border-radius: 12px;
+        --gold-accent: #FFD700;
+      }
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, var(--pizzahut-cream) 0%, #FFF5F0 100%);
+        color: var(--text-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+      
+      .container {
+        display: grid;
+        grid-template-columns: 350px 1fr 300px;
+        gap: 20px;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px;
+        min-height: 100vh;
+      }
+      
+      /* Header */
+      .header {
+        grid-column: 1 / -1;
+        text-align: center;
+        background: linear-gradient(45deg, var(--pizzahut-red), var(--pizzahut-dark-red));
+        color: var(--text-light);
+        padding: 20px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 20px var(--shadow);
+        margin-bottom: 20px;
+      }
+      
+      .logo {
+        font-family: 'Fredoka One', cursive;
+        font-size: 3rem;
+        margin-bottom: 8px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        letter-spacing: 2px;
+      }
+      
+      .tagline {
+        font-size: 1.2rem;
+        font-weight: 500;
+        opacity: 0.95;
+      }
+      
+      /* Menu Section */
+      .menu-section {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 20px var(--shadow);
+        padding: 20px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+      }
+      
+      .menu-title {
+        font-family: 'Fredoka One', cursive;
+        font-size: 1.5rem;
+        color: var(--pizzahut-red);
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid var(--gold-accent);
+        padding-bottom: 10px;
+      }
+      
+      .menu-category {
+        margin-bottom: 25px;
+      }
+      
+      .category-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--pizzahut-white);
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: linear-gradient(45deg, var(--pizzahut-red), var(--pizzahut-dark-red));
+        border-radius: 8px;
+        text-align: center;
+      }
+      
+      .menu-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        background: var(--pizzahut-light-gray);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+      }
+      
+      .menu-item:hover {
+        background: var(--gold-accent);
+        transform: translateX(5px);
+        border-color: var(--pizzahut-red);
+        box-shadow: 0 2px 8px var(--shadow);
+      }
+      
+      .item-info {
+        flex: 1;
+      }
+      
+      .item-name {
+        font-weight: 500;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+      }
+      
+      .item-description {
+        font-size: 0.75rem;
+        color: #666;
+        line-height: 1.3;
+      }
+      
+      .item-price {
+        font-weight: 600;
+        color: var(--pizzahut-red);
+        font-size: 1rem;
+        margin-left: 10px;
+      }
+      
+      /* Special Pizza Hut Combos */
+      .combo-section {
+        background: linear-gradient(45deg, var(--pizzahut-red), var(--pizzahut-dark-red));
+        color: white;
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      
+      .combo-title {
+        font-family: 'Fredoka One', cursive;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+      }
+      
+      .combo-item {
+        background: rgba(255, 255, 255, 0.2);
+        margin: 8px 0;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .combo-item:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.02);
+      }
+      
+      .combo-savings {
+        background: var(--gold-accent);
+        color: var(--text-dark);
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 5px;
+      }
+      
+      /* Order Section (Third Column) */
+      .order-section {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 20px var(--shadow);
+        padding: 20px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+      }
+      
+      /* Current Order Section */
+      .current-order {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        border: 2px solid var(--pizzahut-red);
+        box-shadow: 0 2px 10px rgba(200, 16, 46, 0.2);
+      }
+      
+      .order-title {
+        font-family: 'Fredoka One', cursive;
+        font-size: 1.3rem;
+        color: var(--pizzahut-red);
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid var(--gold-accent);
+        padding-bottom: 10px;
+      }
+      
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9rem;
+      }
+      
+      .order-total {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--pizzahut-red);
+        text-align: center;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px solid var(--gold-accent);
+      }
+      
+      /* Chat Section */
+      .chat-section {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 20px var(--shadow);
+        overflow: hidden;
+        height: calc(100vh - 200px);
+        min-height: 600px;
+      }
+      
+      .chat-header {
+        background: linear-gradient(45deg, var(--pizzahut-red), var(--pizzahut-dark-red));
+        color: var(--text-light);
+        padding: 15px 20px;
+        text-align: center;
+        font-weight: 600;
+      }
+      
+      .pizzahut-avatar {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: var(--gold-accent);
+        border-radius: 50%;
+        margin-right: 10px;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 40px;
+        color: var(--pizzahut-red);
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+      
+      #messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: linear-gradient(to bottom, #FFFBF7, #FFF8F5);
+        display: flex;
+        flex-direction: column;
+        scroll-behavior: smooth;
+      }
+      
+      #messages p {
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        max-width: 85%;
+        word-wrap: break-word;
+        animation: slideIn 0.3s ease-out;
+      }
+      
+      .agent-message {
+        background: linear-gradient(45deg, var(--gold-accent), #FFE55C);
+        color: var(--text-dark);
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        border: 1px solid var(--pizzahut-red);
+        font-weight: 500;
+      }
+      
+      .user-message {
+        background: linear-gradient(45deg, var(--pizzahut-red), var(--pizzahut-dark-red));
+        color: var(--text-light);
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+        font-weight: 500;
+      }
+      
+      /* Markdown styling within messages */
+      .message-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      
+      .message-content li {
+        margin: 4px 0;
+        line-height: 1.4;
+      }
+      
+      .message-content p {
+        margin: 8px 0;
+      }
+      
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+      
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+      
+      .message-content strong {
+        font-weight: 600;
+      }
+      
+      .message-content em {
+        font-style: italic;
+      }
+      
+      /* Bullet points styling */
+      .agent-message .message-content ul li {
+        color: var(--text-dark);
+      }
+      
+      .agent-message .message-content ul li::marker {
+        color: var(--pizzahut-red);
+      }
+      
+      /* User message markdown (if needed) */
+      .user-message .message-content ul li {
+        color: var(--text-light);
+      }
+      
+      .user-message .message-content ul li::marker {
+        color: var(--gold-accent);
+      }
+      
+      #messageForm {
+        display: flex;
+        gap: 10px;
+        padding: 16px;
+        background: var(--pizzahut-cream);
+        border-top: 2px solid var(--gold-accent);
+      }
+      
+      #message {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid var(--pizzahut-red);
+        border-radius: 25px;
+        font-size: 16px;
+        outline: none;
+        transition: all 0.2s ease;
+        background: white;
+      }
+      
+      #message:focus {
+        border-color: var(--pizzahut-dark-red);
+        box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.3);
+        transform: scale(1.02);
+      }
+      
+      button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      #sendButton {
+        background: linear-gradient(45deg, var(--pizzahut-red), var(--pizzahut-dark-red));
+        color: var(--text-light);
+      }
+      
+      #sendButton:hover:not(:disabled) {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 15px rgba(200, 16, 46, 0.4);
+      }
+      
+      #sendButton:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      #startAudioButton {
+        background: linear-gradient(45deg, #22CC44, #1AA033);
+        color: var(--text-light);
+      }
+      
+      #startAudioButton:hover:not(:disabled) {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 15px rgba(34, 204, 68, 0.4);
+      }
+      
+      #stopAudioButton {
+        background: linear-gradient(45deg, #FF6B6B, #FF5252);
+        color: var(--text-light);
+        display: none;
+      }
+      
+      /* Audio Mode Enhancements */
+      .chat-section.audio-mode {
+        border: 3px solid #22CC44;
+        box-shadow: 0 0 20px rgba(34, 204, 68, 0.3);
+      }
+      
+      .chat-section.audio-mode .chat-header {
+        background: linear-gradient(45deg, #22CC44, #1AA033);
+      }
+      
+      .chat-section.audio-mode .chat-header::after {
+        content: " 🎤 MODO VOZ ATIVO";
+        font-size: 0.9rem;
+        opacity: 0.9;
+        animation: pulse-text 2s infinite;
+      }
+      
+      /* Audio mode message styling */
+      #messages.audio-enabled {
+        background: linear-gradient(to bottom, #F8FFF8, #F0FFF0);
+      }
+      
+      #messages.audio-enabled::before {
+        content: "🎤 Modo Voz Ativo - Apenas confirmações de pedido são mostradas";
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background: rgba(34, 204, 68, 0.1);
+        color: #1AA033;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(34, 204, 68, 0.3);
+      }
+      
+      /* Audio status improvements */
+      .audio-status-bar {
+        background: linear-gradient(45deg, #22CC44, #1AA033);
+        color: white;
+        padding: 8px 15px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: none;
+        animation: pulse-background 2s infinite;
+      }
+      
+      .audio-status-bar.active {
+        display: block;
+      }
+      
+      /* Enhanced recording indicator */
+      .recording-container.active {
+        background: rgba(200, 16, 46, 0.1);
+        border: 2px solid var(--pizzahut-red);
+        animation: pulse-border 1s infinite;
+      }
+      
+      /* Audio wave animation */
+      .audio-wave {
+        display: inline-block;
+        margin-left: 10px;
+      }
+      
+      .audio-wave span {
+        display: inline-block;
+        width: 3px;
+        height: 15px;
+        background: #22CC44;
+        margin: 0 1px;
+        border-radius: 2px;
+        animation: audio-wave 1.5s infinite ease-in-out;
+      }
+      
+      .audio-wave span:nth-child(2) { animation-delay: 0.1s; }
+      .audio-wave span:nth-child(3) { animation-delay: 0.2s; }
+      .audio-wave span:nth-child(4) { animation-delay: 0.3s; }
+      .audio-wave span:nth-child(5) { animation-delay: 0.4s; }
+      
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        font-size: 14px;
+        font-weight: 500;
+        gap: 20px;
+      }
+      
+      .status-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin-right: 8px;
+      }
+      
+      .status-dot.connected {
+        background-color: #22CC44;
+        animation: pulse 2s infinite;
+      }
+      
+      .status-dot.recording {
+        background-color: var(--pizzahut-red);
+        animation: pulse-recording 1s infinite;
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+          padding: 10px;
+        }
+        
+        .menu-section {
+          position: static;
+          order: 2;
+        }
+        
+        .chat-section {
+          order: 1;
+          height: 500px;
+        }
+        
+        #messageForm {
+          flex-direction: column;
+        }
+        
+        button {
+          width: 100%;
+        }
+      }
+      
+      /* Animations */
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      
+      @keyframes pulse-recording {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+      }
+      
+      /* Order Item Styles */
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9rem;
+        animation: fadeIn 0.3s ease-out;
+      }
+      
+      .order-item:last-child {
+        border-bottom: none;
+      }
+      
+      .order-item-details {
+        flex: 1;
+      }
+      
+      .order-item-name {
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+      
+      .order-item-quantity {
+        font-size: 0.8rem;
+        color: #666;
+      }
+      
+      .order-item-price {
+        font-weight: 600;
+        color: var(--pizzahut-red);
+        margin-left: 10px;
+      }
+      
+      /* Clear Order Button */
+      .clear-order-btn {
+        width: 100%;
+        margin-top: 10px;
+        background: linear-gradient(45deg, #FF6B6B, #FF5252);
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      
+      .clear-order-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      }
+      
+      /* Order Success Animation */
+      @keyframes orderSuccess {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); background-color: var(--pizzahut-red); }
+        100% { transform: scale(1); }
+      }
+      
+      .order-success {
+        animation: orderSuccess 0.5s ease-out;
+      }
+      
+      /* Loading Spinner */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--pizzahut-red);
+        animation: spin 1s ease-in-out infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      /* Audio Mode Animations */
+      @keyframes pulse-text {
+        0%, 100% { opacity: 0.9; }
+        50% { opacity: 0.6; }
+      }
+      
+      @keyframes pulse-background {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      
+      @keyframes pulse-border {
+        0%, 100% { border-color: var(--pizzahut-red); }
+        50% { border-color: rgba(200, 16, 46, 0.5); }
+      }
+      
+      @keyframes audio-wave {
+        0%, 100% { height: 15px; }
+        50% { height: 25px; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">🍕 Pizza Hut</div>
+        <div class="tagline">Seu Assistente Pizza Hut para Pizzas Deliciosas</div>
+      </div>
+      
+      <div class="menu-section">
+        <div class="menu-title">🍕 Cardápio Pizza Hut</div>
+        
+        <!-- Combos Destacados -->
+        <div class="combo-section">
+          <div class="combo-title">¡COMBOS INCRÍVEIS!</div>
+          <div class="combo-item" data-product="MY BOX INDIVIDUAL">
+            <strong>My Box Individual</strong><br>
+            Pizza Individual + Acompanhamento + Refrigerante<br>
+            <span class="combo-savings">Só R$ 35,90!</span>
+          </div>
+          <div class="combo-item" data-product="DUPLA IMBATIVEL">
+            <strong>Dupla Imbatível</strong><br>
+            2 Pizzas Grandes<br>
+            <span class="combo-savings">Só R$ 99,90!</span>
+          </div>
+          <div class="combo-item" data-product="COMBO FAMILIA">
+            <strong>Combo Família</strong><br>
+            2 Pizzas Grandes + Entrada + Refrigerante 2L<br>
+            <span class="combo-savings">Só R$ 159,90!</span>
+          </div>
+        </div>
+        
+        <!-- Pizzas Individuais -->
+        <div class="menu-category">
+          <div class="category-title">🍕 PIZZAS INDIVIDUAIS</div>
+          <div class="menu-item" data-product="PIZZA INDIVIDUAL">
+            <div class="item-info">
+              <div class="item-name">Pizza Individual</div>
+              <div class="item-description">4 fatias - qualquer sabor</div>
+            </div>
+            <div class="item-price">R$ 34,90</div>
+          </div>
+        </div>
+        
+        <!-- Pizzas Médias e Grandes -->
+        <div class="menu-category">
+          <div class="category-title">🍕 PIZZAS MÉDIAS E GRANDES</div>
+          <div class="menu-item" data-product="PIZZA MEDIA">
+            <div class="item-info">
+              <div class="item-name">Pizza Média</div>
+              <div class="item-description">8 fatias com opção de borda recheada</div>
+            </div>
+            <div class="item-price">R$ 69,90</div>
+          </div>
+          <div class="menu-item" data-product="PIZZA GRANDE">
+            <div class="item-info">
+              <div class="item-name">Pizza Grande</div>
+              <div class="item-description">12 fatias com opção de borda recheada</div>
+            </div>
+            <div class="item-price">R$ 79,90</div>
+          </div>
+        </div>
+        
+        <!-- Entradas -->
+        <div class="menu-category">
+          <div class="category-title">🥖 ENTRADAS</div>
+          <div class="menu-item" data-product="CHEESY POPS">
+            <div class="item-info">
+              <div class="item-name">Cheesy Pops</div>
+              <div class="item-description">8 bolinhas de queijo assadas</div>
+            </div>
+            <div class="item-price">R$ 19,90</div>
+          </div>
+          <div class="menu-item" data-product="BATATA COUNTRY">
+            <div class="item-info">
+              <div class="item-name">Batata Country</div>
+              <div class="item-description">Porção de batata country crocante</div>
+            </div>
+            <div class="item-price">R$ 17,90</div>
+          </div>
+          <div class="menu-item" data-product="BREADSTICKS">
+            <div class="item-info">
+              <div class="item-name">Breadsticks</div>
+              <div class="item-description">Palitos de massa com queijo</div>
+            </div>
+            <div class="item-price">R$ 22,90</div>
+          </div>
+        </div>
+        
+        <!-- Sobremesas -->
+        <div class="menu-category">
+          <div class="category-title">🍰 SOBREMESAS</div>
+          <div class="menu-item" data-product="PIZZA DE BRIGADEIRO">
+            <div class="item-info">
+              <div class="item-name">Pizza de Brigadeiro</div>
+              <div class="item-description">Pizza doce individual de brigadeiro</div>
+            </div>
+            <div class="item-price">R$ 24,90</div>
+          </div>
+          <div class="menu-item" data-product="HUT CUP">
+            <div class="item-info">
+              <div class="item-name">Hut Cup</div>
+              <div class="item-description">Sorvete cremoso</div>
+            </div>
+            <div class="item-price">R$ 12,90</div>
+          </div>
+          <div class="menu-item" data-product="CHURROS">
+            <div class="item-info">
+              <div class="item-name">Churros com Doce de Leite</div>
+              <div class="item-description">4 unidades de churros</div>
+            </div>
+            <div class="item-price">R$ 15,90</div>
+          </div>
+        </div>
+        
+        <!-- Bebidas -->
+        <div class="menu-category">
+          <div class="category-title">🥤 BEBIDAS</div>
+          <div class="menu-item" data-product="REFRIGERANTE LATA">
+            <div class="item-info">
+              <div class="item-name">Refrigerante Lata</div>
+              <div class="item-description">350ml - Coca Cola, Guaraná, Fanta</div>
+            </div>
+            <div class="item-price">R$ 8,90</div>
+          </div>
+          <div class="menu-item" data-product="REFRIGERANTE 2L">
+            <div class="item-info">
+              <div class="item-name">Refrigerante 2L</div>
+              <div class="item-description">2 litros - Coca Cola, Guaraná, Fanta</div>
+            </div>
+            <div class="item-price">R$ 14,90</div>
+          </div>
+          <div class="menu-item" data-product="AGUA MINERAL">
+            <div class="item-info">
+              <div class="item-name">Água Mineral</div>
+              <div class="item-description">500ml geladinha</div>
+            </div>
+            <div class="item-price">R$ 5,90</div>
+          </div>
+        </div>
+        
+        <!-- Informação adicional -->
+        <div style="margin-top: 20px; padding: 15px; background: var(--pizzahut-light-gray); border-radius: 8px; text-align: center;">
+          <div style="font-weight: 600; color: var(--pizzahut-red); margin-bottom: 5px;">✅ Sabores Disponíveis:</div>
+          <div style="font-size: 0.8rem; color: #666;">
+            • Mussarela • Calabresa • Marguerita<br>
+            • Pepperoni • Portuguesa • Frango c/ Requeijão<br>
+            • Supreme • Meat Lovers • Cheese Lovers
+          </div>
+          <div style="font-size: 0.75rem; color: var(--pizzahut-red); margin-top: 8px; font-weight: 500;">
+            🍕 Todos os produtos verificados no sistema Pizza Hut!
+          </div>
+        </div>
+      </div>
+      
+      <div class="chat-section">
+        <div class="chat-header">
+          <span class="pizzahut-avatar">🍕</span>
+          <strong>Assistente Pizza Hut</strong> - Pronto para ajudar com pizzas deliciosas!
+        </div>
+        
+        <div id="messages">
+          <div id="typing-indicator" class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        
+        <form id="messageForm">
+          <input type="text" id="message" name="message" placeholder="Fale com o Assistente Pizza Hut! Ex: 'Quero My Box Individual'..." autocomplete="off" />
+          <button type="submit" id="sendButton" disabled>Enviar</button>
+          <button type="button" id="startAudioButton">🎤 Ativar Voz</button>
+          <button type="button" id="stopAudioButton">🔇 Desativar Voz</button>
+        </form>
+      </div>
+      
+      <!-- Order Section (Third Column) -->
+      <div class="order-section">
+        <div class="current-order">
+          <div class="order-title">🛒 Seu Pedido Pizza Hut</div>
+          <div id="current-order-items">
+            <div id="empty-order-message" style="text-align: center; color: #999; font-style: italic;">
+              Fale com o Assistente Pizza Hut para fazer seu pedido!
+            </div>
+          </div>
+          <div id="order-total" class="order-total" style="display: none;">
+            Total: R$ <span id="total-amount">0.00</span>
+          </div>
+          <button id="clear-order-btn" class="clear-order-btn" style="display: none;">
+            🗑️ Limpar Pedido
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="status-indicator">
+      <div class="status-item">
+        <div id="status-dot" class="status-dot"></div>
+        <span id="connection-status">Conectando...</span>
+      </div>
+      <div class="status-item" id="recording-container" style="display: none;">
+        <div class="status-dot recording"></div>
+        <span id="recording-status">Gravando</span>
+      </div>
+    </div>
+    
+    <script>
+      // Order management
+      let currentOrder = { items: [], total: 0.0 };
+      let orderUpdateInterval;
+      
+      // Update order display
+      function updateOrderDisplay(order) {
+        const orderItemsDiv = document.getElementById('current-order-items');
+        const emptyMessage = document.getElementById('empty-order-message');
+        const orderTotalDiv = document.getElementById('order-total');
+        const totalAmount = document.getElementById('total-amount');
+        const clearBtn = document.getElementById('clear-order-btn');
+        
+        if (order.items && order.items.length > 0) {
+          // Hide empty message
+          emptyMessage.style.display = 'none';
+          
+          // Build order items HTML
+          let itemsHTML = '';
+          order.items.forEach(item => {
+            itemsHTML += `
+              <div class="order-item">
+                <div class="order-item-details">
+                  <div class="order-item-name">${item.produto}</div>
+                  <div class="order-item-quantity">Quantidade: ${item.quantidade}</div>
+                </div>
+                <div class="order-item-price">R$ ${item.subtotal.toFixed(2)}</div>
+              </div>
+            `;
+          });
+          
+          // Update items display
+          orderItemsDiv.innerHTML = emptyMessage.outerHTML + itemsHTML;
+          
+          // Show total and clear button
+          orderTotalDiv.style.display = 'block';
+          totalAmount.textContent = order.total.toFixed(2);
+          clearBtn.style.display = 'block';
+          
+          // Add success animation
+          orderItemsDiv.classList.add('order-success');
+          setTimeout(() => orderItemsDiv.classList.remove('order-success'), 500);
+        } else {
+          // Show empty message
+          emptyMessage.style.display = 'block';
+          orderItemsDiv.innerHTML = emptyMessage.outerHTML;
+          orderTotalDiv.style.display = 'none';
+          clearBtn.style.display = 'none';
+        }
+      }
+      
+      // Fetch current order from API
+      async function fetchCurrentOrder() {
+        try {
+          const response = await fetch('/api/pedido/default');
+          const data = await response.json();
+          
+          if (data.success && data.pedido) {
+            // Check if order has changed
+            if (JSON.stringify(currentOrder) !== JSON.stringify(data.pedido)) {
+              currentOrder = data.pedido;
+              updateOrderDisplay(currentOrder);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching order:', error);
+        }
+      }
+      
+      // Clear order
+      async function clearOrder() {
+        const messageInput = document.getElementById('message');
+        messageInput.value = 'Quero cancelar meu pedido atual';
+        document.getElementById('sendButton').click();
+      }
+      
+      // Start polling for order updates
+      function startOrderPolling() {
+        // Initial fetch
+        fetchCurrentOrder();
+        
+        // Poll every 2 seconds
+        orderUpdateInterval = setInterval(fetchCurrentOrder, 2000);
+      }
+      
+      // Stop polling
+      function stopOrderPolling() {
+        if (orderUpdateInterval) {
+          clearInterval(orderUpdateInterval);
+        }
+      }
+      
+      // Add menu item click functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('.menu-item[data-product]');
+        const messageInput = document.getElementById('message');
+        const clearBtn = document.getElementById('clear-order-btn');
+        
+        // Start order polling when connected
+        const originalOnOpen = window.onWebSocketOpen || function() {};
+        window.onWebSocketOpen = function() {
+          originalOnOpen();
+          startOrderPolling();
+        };
+        
+        // Stop polling when disconnected
+        const originalOnClose = window.onWebSocketClose || function() {};
+        window.onWebSocketClose = function() {
+          originalOnClose();
+          stopOrderPolling();
+        };
+        
+        menuItems.forEach(item => {
+          item.addEventListener('click', function() {
+            const productName = this.dataset.product;
+            const price = this.querySelector('.item-price').textContent;
+            
+            // Add visual feedback
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              this.style.transform = '';
+            }, 150);
+            
+            // Pre-fill the message input
+            messageInput.value = `Quero ${productName}`;
+            messageInput.focus();
+          });
+        });
+        
+        // Add combo button functionality
+        const comboItems = document.querySelectorAll('.combo-item');
+        comboItems.forEach(item => {
+          item.addEventListener('click', function() {
+            const productName = this.dataset.product;
+            messageInput.value = `Quero ${productName}`;
+            messageInput.focus();
+          });
+        });
+        
+        // Clear order button
+        if (clearBtn) {
+          clearBtn.addEventListener('click', function() {
+            if (confirm('Tem certeza que quer limpar seu pedido?')) {
+              clearOrder();
+            }
+          });
+        }
+        
+        // Quick order suggestions
+        const quickOrders = [
+          { text: '🍕 My Box Individual', value: 'Quero My Box Individual' },
+          { text: '🍕 Dupla Imbatível', value: 'Quero Dupla Imbatível' },
+          { text: '🍕 Pizza Individual', value: 'Quero Pizza Individual' },
+          { text: '🍕 Pizza Grande', value: 'Quero Pizza Grande' }
+        ];
+        
+        // Add quick order buttons after the message form
+        const messageForm = document.getElementById('messageForm');
+        const quickOrderDiv = document.createElement('div');
+        quickOrderDiv.style.cssText = 'display: flex; gap: 10px; padding: 10px 16px; flex-wrap: wrap;';
+        
+        quickOrders.forEach(order => {
+          const btn = document.createElement('button');
+          btn.textContent = order.text;
+          btn.type = 'button';
+          btn.style.cssText = 'padding: 8px 15px; font-size: 12px; background: var(--gold-accent); color: var(--text-dark); border-radius: 20px;';
+          btn.addEventListener('click', function() {
+            messageInput.value = order.value;
+            messageInput.focus();
+          });
+          quickOrderDiv.appendChild(btn);
+        });
+        
+        messageForm.parentNode.insertBefore(quickOrderDiv, messageForm.nextSibling);
+      });
+      
+      // Listen for WebSocket messages to detect order changes
+      const originalHandleMessage = window.handleWebSocketMessage || function() {};
+      window.handleWebSocketMessage = function(message) {
+        originalHandleMessage(message);
+        
+        // Check if message mentions order update
+        if (message.data && (
+          message.data.includes('adicionado') || 
+          message.data.includes('pedido') ||
+          message.data.includes('confirmado')
+        )) {
+          // Fetch order immediately
+          setTimeout(fetchCurrentOrder, 500);
+        }
+      };
+    </script>
+  </body>
+</html>
