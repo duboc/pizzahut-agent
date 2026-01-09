@@ -22,14 +22,53 @@ echo -e "${YELLOW}📄 Loading environment variables from .env...${NC}"
 export $(cat .env | grep -v '^#' | grep -v '^$' | xargs)
 
 # Validate required environment variables
-if [ -z "$GOOGLE_API_KEY" ]; then
-    echo -e "${RED}❌ Error: GOOGLE_API_KEY not found in .env file!${NC}"
-    echo "Please add GOOGLE_API_KEY=your_key_here to your .env file"
+if [ -z "$GOOGLE_API_KEY" ] && [ -z "$GOOGLE_GENAI_USE_VERTEXAI" ]; then
+    echo -e "${RED}❌ Error: GOOGLE_API_KEY or GOOGLE_GENAI_USE_VERTEXAI not found in .env file!${NC}"
+    echo "Please add your API configuration to the .env file"
     exit 1
 fi
 
+# Build environment variables string for Cloud Run (read all from .env)
+# Using a more robust approach that handles special characters
+ENV_VARS=""
+echo -e "${YELLOW}   Reading environment variables:${NC}"
+while IFS= read -r line || [[ -n "$line" ]]; do
+    # Skip empty lines and comments
+    if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+        # Extract key (everything before first =)
+        key="${line%%=*}"
+        # Extract value (everything after first =)
+        value="${line#*=}"
+        # Remove surrounding quotes if present
+        value="${value%\"}"
+        value="${value#\"}"
+        value="${value%\'}"
+        value="${value#\'}"
+        if [[ -n "$key" && -n "$value" ]]; then
+            echo -e "${BLUE}   - $key${NC}"
+            if [[ -z "$ENV_VARS" ]]; then
+                ENV_VARS="${key}=${value}"
+            else
+                ENV_VARS="${ENV_VARS},${key}=${value}"
+            fi
+        fi
+    fi
+done < .env
+
+echo ""
 echo -e "${GREEN}✅ Environment variables loaded successfully${NC}"
-echo -e "${BLUE}   API Key: ${GOOGLE_API_KEY:0:8}...${GOOGLE_API_KEY: -8}${NC}"
+if [ ! -z "$GOOGLE_API_KEY" ]; then
+    echo -e "${BLUE}   API Key: ${GOOGLE_API_KEY:0:8}...${GOOGLE_API_KEY: -8}${NC}"
+fi
+if [ ! -z "$GOOGLE_GENAI_USE_VERTEXAI" ]; then
+    echo -e "${BLUE}   Using Vertex AI: $GOOGLE_GENAI_USE_VERTEXAI${NC}"
+fi
+if [ ! -z "$GOOGLE_CLOUD_PROJECT" ]; then
+    echo -e "${BLUE}   GCP Project: $GOOGLE_CLOUD_PROJECT${NC}"
+fi
+if [ ! -z "$GOOGLE_CLOUD_LOCATION" ]; then
+    echo -e "${BLUE}   GCP Location: $GOOGLE_CLOUD_LOCATION${NC}"
+fi
 
 # Check if gcloud is installed and authenticated
 if ! command -v gcloud &> /dev/null; then
@@ -62,6 +101,25 @@ echo -e "${GREEN}📦 Project: $PROJECT_ID${NC}"
 echo -e "${YELLOW}🔧 Enabling required APIs...${NC}"
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com --quiet
 
+# Verify Vertex AI requirements if using Vertex AI
+if [ ! -z "$GOOGLE_GENAI_USE_VERTEXAI" ] && [ "$GOOGLE_GENAI_USE_VERTEXAI" == "true" ]; then
+    if [ -z "$GOOGLE_CLOUD_PROJECT" ]; then
+        echo -e "${RED}❌ Error: GOOGLE_CLOUD_PROJECT is required when using Vertex AI!${NC}"
+        exit 1
+    fi
+    if [ -z "$GOOGLE_CLOUD_LOCATION" ]; then
+        echo -e "${YELLOW}⚠️ Warning: GOOGLE_CLOUD_LOCATION not set, defaulting to us-central1${NC}"
+    fi
+fi
+
+# Debug: Show ENV_VARS being passed (with values masked)
+echo -e "${YELLOW}📋 Environment variables to be passed to Cloud Run:${NC}"
+echo "$ENV_VARS" | tr ',' '\n' | while read -r pair; do
+    key="${pair%%=*}"
+    echo -e "${BLUE}   ✓ $key${NC}"
+done
+echo ""
+
 # Deploy to Cloud Run
 echo -e "${GREEN}🚀 Deploying Pizza Hut Live Agent to Cloud Run...${NC}"
 echo -e "${BLUE}   Region: us-central1${NC}"
@@ -74,7 +132,7 @@ gcloud run deploy pizzahut-live-agent \
   --source . \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars GOOGLE_API_KEY="$GOOGLE_API_KEY" \
+  --set-env-vars "$ENV_VARS" \
   --memory 2Gi \
   --cpu 2 \
   --timeout 3600 \

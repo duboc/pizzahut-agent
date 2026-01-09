@@ -39,8 +39,10 @@ function connectWebsocket() {
     connectionStatus.textContent = "Connected";
     statusDot.classList.add("connected");
 
-    // Enable the Send button
-    document.getElementById("sendButton").disabled = false;
+    // Enable the Send button ONLY if audio mode is active
+    if (is_audio) {
+      document.getElementById("sendButton").disabled = false;
+    }
     addSubmitHandler();
     
     // Call custom onOpen handler if defined
@@ -348,8 +350,11 @@ stopAudioButton.addEventListener("click", () => {
   stopAudioButton.style.display = "none";
   startAudioButton.style.display = "inline-block";
   startAudioButton.disabled = false;
-  startAudioButton.textContent = "🎤 Activar Voz";
+  startAudioButton.textContent = "🎤 Ativar Voz";
   recordingContainer.style.display = "none";
+
+  // Disable the Send button when voice is deactivated
+  document.getElementById("sendButton").disabled = true;
 
   // Remove audio styling classes
   messagesDiv.classList.remove("audio-enabled");

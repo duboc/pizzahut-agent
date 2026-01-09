@@ -1,12 +1,13 @@
 import asyncio
 import base64
 import json
+import logging
 import os
 from pathlib import Path
 from typing import AsyncIterable
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Query, WebSocket
+from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from google.adk.agents import LiveRequestQueue
@@ -15,6 +16,13 @@ from google.adk.events.event import Event
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 from food.agent import root_agent
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 #
 # ADK Streaming
@@ -88,55 +96,55 @@ async def agent_to_client_messaging(
 ):
     """Agent to client communication"""
     async for event in live_events:
-            if event is None:
-                continue
+        if event is None:
+            continue
 
-            # If the turn complete or interrupted, send it
-            if event.turn_complete or event.interrupted:
+        # If the turn complete or interrupted, send it
+        if event.turn_complete or event.interrupted:
+            message = {
+                "turn_complete": event.turn_complete,
+                "interrupted": event.interrupted,
+            }
+            await websocket.send_text(json.dumps(message))
+            logger.debug(f"[AGENT TO CLIENT]: {message}")
+            continue
+
+        # Read the Content and its first Part
+        part = event.content and event.content.parts and event.content.parts[0]
+        if not part:
+            continue
+
+        # Make sure we have a valid Part
+        if not isinstance(part, types.Part):
+            continue
+
+        # Only send text if it's a partial response (streaming)
+        # Skip the final complete message to avoid duplication
+        if part.text and event.partial:
+            message = {
+                "mime_type": "text/plain",
+                "data": part.text,
+                "role": "model",
+            }
+            await websocket.send_text(json.dumps(message))
+            logger.debug(f"[AGENT TO CLIENT]: text/plain: {part.text}")
+
+        # If it's audio, send Base64 encoded audio data
+        is_audio = (
+            part.inline_data
+            and part.inline_data.mime_type
+            and part.inline_data.mime_type.startswith("audio/pcm")
+        )
+        if is_audio:
+            audio_data = part.inline_data and part.inline_data.data
+            if audio_data:
                 message = {
-                    "turn_complete": event.turn_complete,
-                    "interrupted": event.interrupted,
-                }
-                await websocket.send_text(json.dumps(message))
-                print(f"[AGENT TO CLIENT]: {message}")
-                continue
-
-            # Read the Content and its first Part
-            part = event.content and event.content.parts and event.content.parts[0]
-            if not part:
-                continue
-
-            # Make sure we have a valid Part
-            if not isinstance(part, types.Part):
-                continue
-
-            # Only send text if it's a partial response (streaming)
-            # Skip the final complete message to avoid duplication
-            if part.text and event.partial:
-                message = {
-                    "mime_type": "text/plain",
-                    "data": part.text,
+                    "mime_type": "audio/pcm",
+                    "data": base64.b64encode(audio_data).decode("ascii"),
                     "role": "model",
                 }
                 await websocket.send_text(json.dumps(message))
-                print(f"[AGENT TO CLIENT]: text/plain: {part.text}")
-
-            # If it's audio, send Base64 encoded audio data
-            is_audio = (
-                part.inline_data
-                and part.inline_data.mime_type
-                and part.inline_data.mime_type.startswith("audio/pcm")
-            )
-            if is_audio:
-                audio_data = part.inline_data and part.inline_data.data
-                if audio_data:
-                    message = {
-                        "mime_type": "audio/pcm",
-                        "data": base64.b64encode(audio_data).decode("ascii"),
-                        "role": "model",
-                    }
-                    await websocket.send_text(json.dumps(message))
-                    print(f"[AGENT TO CLIENT]: audio/pcm: {len(audio_data)} bytes.")
+                logger.debug(f"[AGENT TO CLIENT]: audio/pcm: {len(audio_data)} bytes.")
 
 
 async def client_to_agent_messaging(
@@ -156,7 +164,7 @@ async def client_to_agent_messaging(
             # Send a text message
             content = types.Content(role=role, parts=[types.Part.from_text(text=data)])
             live_request_queue.send_content(content=content)
-            print(f"[CLIENT TO AGENT PRINT]: {data}")
+            logger.debug(f"[CLIENT TO AGENT]: {data}")
         elif mime_type == "audio/pcm":
             # Send audio data
             decoded_data = base64.b64decode(data)
@@ -167,7 +175,7 @@ async def client_to_agent_messaging(
             live_request_queue.send_realtime(
                 types.Blob(data=decoded_data, mime_type=mime_type)
             )
-            print(f"[CLIENT TO AGENT]: audio/pcm: {len(decoded_data)} bytes")
+            logger.debug(f"[CLIENT TO AGENT]: audio/pcm: {len(decoded_data)} bytes")
 
         else:
             raise ValueError(f"Mime type not supported: {mime_type}")
@@ -234,7 +242,7 @@ async def websocket_endpoint(
 
     # Wait for client connection
     await websocket.accept()
-    print(f"Client #{session_id} connected, audio mode: {is_audio}")
+    logger.info(f"Client #{session_id} connected, audio mode: {is_audio}")
 
     # Start agent session
     live_events, live_request_queue = await start_agent_session(
@@ -248,15 +256,19 @@ async def websocket_endpoint(
     client_to_agent_task = asyncio.create_task(
         client_to_agent_messaging(websocket, live_request_queue)
     )
-    # Wait until the websocket is disconnected or an error occurs
-    tasks = [agent_to_client_task, client_to_agent_task]
-    await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
 
-    # Close LiveRequestQueue
-    live_request_queue.close()
-
-    # Disconnected
-    print(f"Client #{session_id} disconnected")
+    # Run both tasks concurrently with proper exception handling
+    try:
+        await asyncio.gather(agent_to_client_task, client_to_agent_task)
+    except WebSocketDisconnect:
+        logger.info(f"Client #{session_id} disconnected normally")
+    except Exception as e:
+        logger.error(f"Unexpected error in streaming tasks for session {session_id}: {e}", exc_info=True)
+    finally:
+        # Always close the queue, even if exceptions occurred
+        logger.debug(f"Closing live_request_queue for session {session_id}")
+        live_request_queue.close()
+        logger.info(f"Client #{session_id} session ended")
 
 
 # For Cloud Run deployment

@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 root_agent = Agent(
     #model="gemini-live-2.5-flash-preview",
-    model="gemini-2.5-flash-native-audio-preview-09-2025",
+    #model="gemini-2.5-flash-native-audio-preview-09-2025",
+    model="gemini-live-2.5-flash-native-audio",
     name="AssistentePizzaHut",
     description="Assistente Pizza Hut - Especialista em pizzas deliciosas e combos irresistíveis",
     instruction=top_level_prompt,
