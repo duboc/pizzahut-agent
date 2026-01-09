@@ -24,6 +24,15 @@ The system now supports **voice interruption (barge-in)** functionality:
 
 ## Recent Changes & Patterns
 
+### Model Configuration & Connection Fixes (2025-12-03)
+**Key Changes Made**:
+1. **Model Update**: Switched to `gemini-2.5-flash-native-audio-preview-09-2025` for native audio support.
+2. **Configuration Logic**: Modified `start_agent_session` in `app/main.py` to only include `speech_config` when audio mode is active.
+
+**Why These Matter**:
+- **Connectivity**: Ensures compatibility with the latest Gemini Live API requirements.
+- **Stability**: Prevents "invalid frame payload" (1007) errors by not sending voice configs for text-only sessions.
+
 ### Voice Interruption Implementation (2025-01-08)
 **Key Changes Made**:
 1. **InMemoryRunner**: Switched from `Runner` to `InMemoryRunner` for built-in interruption handling

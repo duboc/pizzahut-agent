@@ -45,8 +45,8 @@ async def start_agent_session(session_id, is_audio=False):
     modality = "AUDIO" if is_audio else "TEXT"
 
     # Create speech config with voice settings
+    # Note: Native audio models don't support explicit language_code
     speech_config = types.SpeechConfig(
-        language_code="pt-BR",
         voice_config=types.VoiceConfig(
             # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
             prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Leda")
@@ -54,14 +54,20 @@ async def start_agent_session(session_id, is_audio=False):
     )
 
     # Create run config with basic settings
-    config = {"response_modalities": [modality], "speech_config": speech_config}
+    config = {"response_modalities": [modality]}
 
     # Add audio transcription when audio is enabled
     if is_audio:
+        config["speech_config"] = speech_config
         # Enable input transcription for barge-in detection
         config["input_audio_transcription"] = {}
         # Enable output transcription to get both audio and text
         config["output_audio_transcription"] = {}
+    else:
+        # Disable VAD for text-only sessions to avoid "Cannot extract voices" error
+        config["realtime_input_config"] = {
+            "automatic_activity_detection": {"disabled": True}
+        }
 
     run_config = RunConfig(**config)
 
