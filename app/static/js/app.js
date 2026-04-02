@@ -14,6 +14,8 @@ const ws_url = ws_protocol + window.location.host + "/ws/" + sessionId;
 let websocket = null;
 let is_audio = false;
 let currentMessageId = null; // Track the current message ID during a conversation turn
+let currentInputTranscriptionId = null; // Track input transcription message ID
+let currentOutputTranscriptionId = null; // Track output transcription message ID
 
 // Get DOM elements
 const messageForm = document.getElementById("messageForm");
@@ -71,6 +73,8 @@ function connectWebsocket() {
     if (message_from_server.turn_complete || message_from_server.interrupted) {
       // Reset currentMessageId to ensure the next message gets a new element
       currentMessageId = null;
+      currentInputTranscriptionId = null;
+      currentOutputTranscriptionId = null;
       typingIndicator.classList.remove("visible");
       
       // Clear audio buffer if interrupted (for barge-in)
@@ -79,6 +83,20 @@ function connectWebsocket() {
         console.log("[BARGE-IN] Interrupted - clearing audio buffer");
       }
       
+      return;
+    }
+
+    // Handle input transcription (what the user said via voice)
+    if (message_from_server.type === "input_transcription") {
+      typingIndicator.classList.remove("visible");
+      displayTranscription(message_from_server.data, "user", "input");
+      return;
+    }
+
+    // Handle output transcription (what the agent said via voice)
+    if (message_from_server.type === "output_transcription") {
+      typingIndicator.classList.remove("visible");
+      displayTranscription(message_from_server.data, "model", "output");
       return;
     }
 
@@ -412,4 +430,83 @@ function arrayBufferToBase64(buffer) {
     binary += String.fromCharCode(bytes[i]);
   }
   return window.btoa(binary);
+}
+
+/**
+ * Transcription handling
+ */
+
+// Display transcription message in the chat
+function displayTranscription(text, role, type) {
+  // Get the appropriate tracking ID based on type
+  let trackingId = type === "input" ? currentInputTranscriptionId : currentOutputTranscriptionId;
+  
+  // If we have an existing transcription element for this turn, REPLACE the text
+  // (the API sends accumulated text, not just new characters)
+  if (trackingId) {
+    const existingMessage = document.getElementById(trackingId);
+    if (existingMessage) {
+      const contentContainer = existingMessage.querySelector('.message-content') || existingMessage;
+      
+      // Replace the text (not append - transcription API sends full text each time)
+      contentContainer.dataset.rawText = text;
+      
+      // Update the display
+      if (role === "model") {
+        contentContainer.innerHTML = marked.parse(text);
+      } else {
+        contentContainer.textContent = text;
+      }
+
+      // Scroll to the bottom
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      return;
+    }
+  }
+
+  // Create a new message element
+  const messageId = Math.random().toString(36).substring(7);
+  const messageElem = document.createElement("p");
+  messageElem.id = messageId;
+
+  // Set class based on role, with transcription indicator
+  messageElem.className = role === "user" ? "user-message" : "agent-message";
+  
+  // Add a small transcription indicator icon
+  const transcriptionIcon = document.createElement("span");
+  transcriptionIcon.className = "transcription-icon";
+  transcriptionIcon.textContent = type === "input" ? "🎤 " : "🔊 ";
+  transcriptionIcon.style.fontSize = "0.8em";
+  transcriptionIcon.style.opacity = "0.8";
+  messageElem.appendChild(transcriptionIcon);
+
+  // Create content container for the message
+  const contentContainer = document.createElement("div");
+  contentContainer.className = "message-content";
+  contentContainer.style.display = "inline";
+  contentContainer.dataset.rawText = text;
+  
+  // Handle text content based on role
+  if (role === "model") {
+    contentContainer.innerHTML = marked.parse(text);
+  } else {
+    contentContainer.textContent = text;
+  }
+  
+  messageElem.appendChild(contentContainer);
+
+  // Add the message to the DOM
+  messagesDiv.appendChild(messageElem);
+
+  // Remember the ID for subsequent transcription chunks
+  if (type === "input") {
+    currentInputTranscriptionId = messageId;
+  } else {
+    currentOutputTranscriptionId = messageId;
+  }
+
+  // Scroll to the bottom
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  
+  console.log(`[TRANSCRIPTION] ${type}: ${text}`);
 }

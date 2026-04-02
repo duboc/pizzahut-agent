@@ -133,6 +133,7 @@ gcloud run deploy pizzahut-live-agent \
   --region us-central1 \
   --allow-unauthenticated \
   --set-env-vars "$ENV_VARS" \
+  --set-build-env-vars GOOGLE_BUILD_NO_CACHE=true \
   --memory 2Gi \
   --cpu 2 \
   --timeout 3600 \

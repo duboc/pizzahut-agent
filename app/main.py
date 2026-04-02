@@ -49,8 +49,17 @@ async def start_agent_session(session_id, is_audio=False):
         user_id=session_id,
     )
 
-    # Set response modality
-    modality = "AUDIO" if is_audio else "TEXT"
+    # Detect if using native audio model
+    model_name = root_agent.model
+    is_native_audio = "native-audio" in model_name.lower()
+    
+    # Native audio models ONLY support AUDIO output modality
+    # Half-cascade models (like gemini-live-2.5-flash-preview) support both TEXT and AUDIO
+    if is_native_audio:
+        modality = "AUDIO"
+        logger.info(f"Native audio model detected: {model_name}, forcing AUDIO modality")
+    else:
+        modality = "AUDIO" if is_audio else "TEXT"
 
     # Create speech config with voice settings
     # Note: Native audio models don't support explicit language_code
@@ -64,13 +73,14 @@ async def start_agent_session(session_id, is_audio=False):
     # Create run config with basic settings
     config = {"response_modalities": [modality]}
 
-    # Add audio transcription when audio is enabled
-    if is_audio:
+    # Add audio transcription when using audio mode or native audio model
+    if is_audio or is_native_audio:
         config["speech_config"] = speech_config
-        # Enable input transcription for barge-in detection
-        config["input_audio_transcription"] = {}
-        # Enable output transcription to get both audio and text
-        config["output_audio_transcription"] = {}
+        # Enable input transcription for speech-to-text
+        config["input_audio_transcription"] = types.AudioTranscriptionConfig()
+        # Enable output transcription to get text version of audio response
+        config["output_audio_transcription"] = types.AudioTranscriptionConfig()
+        logger.debug("Audio transcription enabled (input and output)")
     else:
         # Disable VAD for text-only sessions to avoid "Cannot extract voices" error
         config["realtime_input_config"] = {
@@ -78,6 +88,7 @@ async def start_agent_session(session_id, is_audio=False):
         }
 
     run_config = RunConfig(**config)
+    logger.debug(f"RunConfig created with modality: {modality}, is_audio: {is_audio}, is_native_audio: {is_native_audio}")
 
     # Create a LiveRequestQueue for this session
     live_request_queue = LiveRequestQueue()
@@ -109,6 +120,43 @@ async def agent_to_client_messaging(
             logger.debug(f"[AGENT TO CLIENT]: {message}")
             continue
 
+        # Handle transcription events (input and output)
+        # Transcription attributes are directly on the event object
+        transcription_sent = False
+        
+        # Input transcription (user's speech -> text)
+        if hasattr(event, 'input_transcription') and event.input_transcription:
+            transcription = event.input_transcription
+            text = getattr(transcription, 'text', None)
+            finished = getattr(transcription, 'finished', False)
+            # Only send FINISHED transcriptions to avoid duplication
+            # The API sends partial chunks AND a final complete message
+            if text and text.strip() and finished:
+                message = {
+                    "type": "input_transcription",
+                    "data": text,
+                    "role": "user",
+                }
+                await websocket.send_text(json.dumps(message))
+                logger.info(f"[TRANSCRIPTION] input (finished): {text}")
+                transcription_sent = True
+        
+        # Output transcription (model's speech -> text)
+        if hasattr(event, 'output_transcription') and event.output_transcription:
+            transcription = event.output_transcription
+            text = getattr(transcription, 'text', None)
+            finished = getattr(transcription, 'finished', False)
+            # Only send FINISHED transcriptions to avoid duplication
+            if text and text.strip() and finished:
+                message = {
+                    "type": "output_transcription",
+                    "data": text,
+                    "role": "model",
+                }
+                await websocket.send_text(json.dumps(message))
+                logger.info(f"[TRANSCRIPTION] output (finished): {text}")
+                transcription_sent = True
+
         # Read the Content and its first Part
         part = event.content and event.content.parts and event.content.parts[0]
         if not part:
@@ -119,8 +167,9 @@ async def agent_to_client_messaging(
             continue
 
         # Only send text if it's a partial response (streaming)
-        # Skip the final complete message to avoid duplication
-        if part.text and event.partial:
+        # Skip text/plain if we already sent transcription for this event
+        # to avoid duplication
+        if part.text and event.partial and not transcription_sent:
             message = {
                 "mime_type": "text/plain",
                 "data": part.text,

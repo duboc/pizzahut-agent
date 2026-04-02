@@ -1,239 +1,211 @@
-# 🍗 KFC Live Agent - Asistente KFC para Miércoles de KFC
+# 🍕 Pizza Hut Live Agent - Assistente Pizza Hut
 
-Un agente de atención al cliente impulsado por IA para **KFC**, con el **Asistente KFC** - un asistente virtual especializado que ayuda a los clientes a hacer sus pedidos de los especiales de Miércoles de KFC de manera interactiva y en español.
+Um agente de atendimento ao cliente impulsionado por IA para a **Pizza Hut**, com o **Assistente Pizza Hut** - um assistente virtual especializado que ajuda os clientes a fazerem seus pedidos de pizzas e combos de maneira interativa e em português.
 
 ## 🌟 Características
 
-### 🎯 Asistente Conversacional KFC
-- **Asistente KFC** - Especialista en pollo crujiente y recetas secretas
-- Conversación en **español** con enfoque en KFC
-- Sugerencias proactivas de combos MDK y upselling
-- Manejo inteligente de selección de atributos (receta, complementos, bebidas)
+### 🎯 Assistente Conversacional Pizza Hut
+- **Assistente Pizza Hut** - Especialista em pizzas artesanais e massas exclusivas
+- Conversação em **português (pt-BR)** com foco na experiência Pizza Hut
+- Sugestões proativas de combos (My Box, Dupla Imbatível) e upselling
+- Manejo inteligente de seleção de atributos (sabores, massas, bordas)
 
-### 🍗 Sistema de Pedidos KFC
-- Menú interactivo completo con **Miércoles de KFC**
-- **Productos reales**: MDK 6/8/10/12 piezas en solo piezas y combos
-- **Atributos complejos**: Recetas (Original/Crispy/Picante), complementos, bebidas
-- Precios en **soles peruanos** (S/) con ofertas especiales
-- Gestión de pedidos en tiempo real con SKUs
+### 🍕 Sistema de Pedidos Pizza Hut
+- Cardápio interativo completo com **Pizzas, Combos, Entradas e Sobremesas**
+- **Produtos Reais**: My Box, Dupla Imbatível, Combo Família
+- **Atributos Complexos**: Sabores (Mussarela, Pepperoni, Supreme, etc.), Massas (Pan, Thin & Crispy), Bordas (Requeijão, Cheddar, Cheesy Pop)
+- Preços em **reais (R$)** com ofertas especiais
+- Gestão de pedidos em tempo real com SKUs
 
-### 🎨 Interfaz de Usuario KFC
-- **Branding oficial KFC**: Colores rojo y dorado, diseño temático
-- **Layout de 3 columnas**: Menú | Chat | Pedido Actual
-- Diseño temático de KFC con elementos visuales atractivos
-- Menú clicable que pre-llena el campo de texto
-- Actualización en tiempo real del pedido
-- Botones de pedido rápido para combos populares
+### 🎨 Interface de Usuário Pizza Hut
+- **Branding oficial Pizza Hut**: Cores vermelho e branco, design temático
+- **Layout de 3 colunas**: Cardápio | Chat | Pedido Atual
+- Design temático com elementos visuais atraivos
+- Cardápio clicável que pré-preenche o campo de texto
+- Atualização em tempo real do pedido e total acumulado
 
-### 🔊 Capacidades Avanzadas
-- **Chat de texto** con respuestas streaming
-- **Soporte de voz** bidireccional en español (voz "Leda")
-- **WebSocket** para comunicación en tiempo real
-- **API REST** para gestión de pedidos
-- **Flujo conversacional** para selección de atributos
+### 🔊 Capacidades Avançadas
+- **Chat de texto** com respostas em streaming
+- **Suporte de voz** bidirecional em português (voz "Leda")
+- **WebSocket** para comunicação em tempo real de baixa latência
+- **API REST** para gestão de sessões e pedidos
+- **Fluxo conversacional inteligente** para configuração de produtos
 
-## 🚀 Despliegue en Cloud Run
+## 🚀 Implantação no Cloud Run
 
-### Despliegue con Un Solo Comando
+### Implantação com Um Único Comando
 ```bash
-# Hacer el script ejecutable
+# Tornar o script executável
 chmod +x deploy.sh
 
-# Desplegar a Google Cloud Run
+# Implantar no Google Cloud Run
 ./deploy.sh
 ```
 
-El script automáticamente:
-- ✅ Valida tu archivo `.env` con `GOOGLE_API_KEY`
-- ✅ Autentica con Google Cloud
-- ✅ Configura el proyecto (si es necesario)
-- ✅ Habilita las APIs requeridas
-- ✅ Despliega con configuraciones optimizadas
+O script automaticamente:
+- ✅ Valida seu arquivo `.env` com `GOOGLE_API_KEY`
+- ✅ Autentica no Google Cloud
+- ✅ Configura o projeto (se necessário)
+- ✅ Habilita as APIs requeridas
+- ✅ Implanta com configurações otimizadas (2Gi RAM, 2 CPUs)
 
-### Configuración de Cloud Run
-- **Servicio**: `kfc-live-agent`
-- **Región**: `us-central1`
-- **Memoria**: 2Gi
+### Configuração do Cloud Run
+- **Serviço**: `pizzahut-live-agent`
+- **Região**: `us-central1`
+- **Memória**: 2Gi
 - **CPU**: 2 cores
-- **Acceso**: Público (sin autenticación)
-- **Auto-escalado**: 0-10 instancias
+- **Acesso**: Público (sem autenticação)
+- **Auto-escalonamento**: 0-10 instâncias
 
-📖 **Guía completa**: Ver [DEPLOYMENT.md](DEPLOYMENT.md)
+📖 **Guia completo**: Veja [DEPLOYMENT.md](DEPLOYMENT.md)
 
-## 🏃‍♂️ Desarrollo Local
+## 🏃‍♂️ Desenvolvimento Local
 
-### Prerrequisitos
-- Python 3.8+
-- Clave API de Google Gemini
+### Pré-requisitos
+- Python 3.11+
+- Chave de API do Google Gemini (ou acesso ao Vertex AI)
 
-### Instalación Local
+### Instalação Local
 
-1. **Clonar el repositorio**
+1. **Clonar o repositório**
 ```bash
 git clone https://github.com/duboc/live-food-agent.git
 cd live-food-agent
 ```
 
-2. **Configurar el entorno virtual**
+2. **Configurar o ambiente virtual**
 ```bash
 chmod +x setup_venv.sh
 ./setup_venv.sh
 ```
 
-3. **Configurar las variables de entorno**
+3. **Configurar as variáveis de ambiente**
 ```bash
-# Crear archivo .env con tu API key
-echo "GOOGLE_API_KEY=tu_api_key_aqui" > .env
+# Criar arquivo .env com sua API key
+echo "GOOGLE_API_KEY=sua_api_key_aqui" > .env
 ```
 
-4. **Ejecutar la aplicación**
+4. **Executar a aplicação**
 ```bash
 source venv/bin/activate
 cd app
 uvicorn main:app --reload
 ```
 
-5. **Abrir en el navegador**
+5. **Abrir no navegador**
 ```
 http://localhost:8000
 ```
 
-## 📁 Estructura del Proyecto
+## 📁 Estrutura do Projeto
 
 ```
-live-food-agent/
+pizzahut-agent/
 ├── app/
-│   ├── main.py              # Servidor FastAPI y WebSocket
+│   ├── main.py              # Servidor FastAPI e WebSocket
 │   ├── food/
-│   │   ├── agent.py         # Configuración del Asistente KFC
+│   │   ├── agent.py         # Configuração do Assistente Pizza Hut
 │   │   └── tools/
-│   │       ├── prompts.py   # Personalidad y estrategias KFC
-│   │       └── tools.py     # Sistema de menú y pedidos KFC
+│   │       ├── prompts.py   # Personalidade e estratégias Pizza Hut
+│   │       └── tools.py     # Sistema de cardápio e pedidos Pizza Hut
 │   └── static/
-│       ├── index.html       # Interfaz KFC con 3 columnas
+│       ├── index.html       # Interface Pizza Hut com 3 colunas
 │       └── js/
-│           └── app.js       # Lógica del cliente WebSocket
-├── Dockerfile               # Configuración para Cloud Run
-├── .gcloudignore           # Exclusiones para despliegue
-├── deploy.sh               # Script de despliegue automatizado
-├── DEPLOYMENT.md           # Guía de despliegue completa
-├── requirements.txt        # Dependencias de Python
-└── README.md              # Este archivo
+│           └── app.js       # Lógica do cliente WebSocket
+├── Dockerfile               # Configuração para Cloud Run
+├── deploy.sh               # Script de implantação automatizada
+├── requirements.txt        # Dependências de Python
+└── README.md              # Este arquivo
 ```
 
-## 🍗 Menú KFC Disponible
+## 🍕 Cardápio Pizza Hut Disponível
 
-### 🍗 Solo Piezas (Miércoles de KFC)
-- **MDK 6 Piezas** - S/ 19.90
-- **MDK 8 Piezas** - S/ 29.90
-- **MDK 10 Piezas** - S/ 39.90
-- **MDK 12 Piezas** - S/ 49.90
+### 📦 Combos e Promoções
+- **My Box Individual** - R$ 35,90 (Pizza/Melt + Acompanhamento + Bebida)
+- **Dupla Imbatível** - R$ 99,90 (2 Pizzas Grandes)
+- **Combo Família** - R$ 159,90 (2 Pizzas Grandes + Entrada + Refri 2L)
 
-### 🥤 En Combo (Con complemento + bebida)
-- **MDK 6 Piezas Combo** - S/ 29.90
-- **MDK 8 Piezas Combo** - S/ 39.90
-- **MDK 10 Piezas Combo** - S/ 49.90
-- **MDK 12 Piezas Combo** - S/ 64.90
+### 🍕 Pizzas (Grande/Média/Individual)
+- **Sabores Tradicionais**: Mussarela, Calabresa, Marguerita
+- **Sabores Especiais**: Pepperoni, Portuguesa, Frango com Requeijão
+- **Hut Lovers**: Supreme, Meat Lovers, Cheese Lovers
 
-### 🎯 Opciones de Personalización
-- **Recetas**: Original (11 hierbas y especias), Crispy (extra crujiente), Picante
-- **Complementos**: Papa Familiar, Ensalada Familiar, Papa Super Familiar
-- **Bebidas**: Coca-Cola Sin Azúcar, Inca Kola Sin Azúcar (1L, 1.5L)
+### 🎯 Opções de Personalização
+- **Massas**: Pan Pizza (fofinha), Thin & Crispy (fina e crocante)
+- **Bordas Recheadas**: Requeijão, Cheddar (+R$ 12,90), Cheesy Pop (+R$ 15,90)
+- **Acompanhamentos**: Cheesy Pops, Batata Country, Breadsticks
+- **Sobremesas**: Pizza de Brigadeiro, Hut Cup, Churros
 
-## 🛠️ Herramientas del Sistema
+## 🛠️ Ferramentas do Sistema
 
-El Asistente KFC utiliza las siguientes herramientas especializadas:
+O Assistente Pizza Hut utiliza as seguintes ferramentas especializadas:
 
-1. **consultar_menu_kfc_tool** - Muestra el menú de KFC disponible
-2. **iniciar_seleccion_producto_tool** - Inicia configuración de producto
-3. **seleccionar_atributo_tool** - Maneja selección de receta/complemento/bebida
-4. **adicionar_producto_finalizado_tool** - Agrega producto configurado al pedido
-5. **consultar_pedido_actual_tool** - Verifica el pedido actual
-6. **sugerir_complementos_kfc_tool** - Sugiere productos adicionales
-7. **finalizar_pedido_kfc_tool** - Procesa el pedido final
-8. **limpiar_pedido_tool** - Cancela el pedido actual
+1. **consultar_cardapio_pizzahut_tool** - Mostra o cardápio disponível
+2. **iniciar_selecao_produto_tool** - Inicia configuração de um produto
+3. **selecionar_atributo_tool** - Gerencia seleção de sabor/massa/borda/bebida
+4. **adicionar_produto_finalizado_tool** - Adiciona produto configurado ao pedido
+5. **consultar_pedido_actual_tool** - Verifica o pedido atual do cliente
+6. **sugerir_complementos_pizzahut_tool** - Sugere upsell baseado no pedido
+7. **finalizar_pedido_pizzahut_tool** - Prepara o pedido para processamento
+8. **finalize_order_tool** - Processa o pedido final no sistema
+9. **remover_item_pedido_tool** - Remove um item específico do pedido
+10. **limpar_pedido_tool** - Cancela o pedido atual completamente
 
-## 💬 Ejemplos de Uso
+## 💬 Exemplos de Uso
 
-### Flujo típico de conversación:
+### Fluxo típico de conversação:
 ```
-Usuario: "Hola"
-Asistente KFC: "¡Bienvenido a KFC! Te recomiendo nuestro MDK 6 Piezas Combo por S/ 29.90"
+Usuário: "Oi"
+Assistente Pizza Hut: "Pizza Hut, boa noite! Qual o seu pedido?"
 
-Usuario: "Quiero MDK 6 piezas combo"
-Asistente KFC: "¡Perfecto! ¿Qué receta prefieres: Original, Crispy o Picante?"
+Usuário: "Quero uma My Box"
+Assistente Pizza Hut: "Excelente escolha! Você prefere a Pizza Individual ou o Melt?"
 
-Usuario: "Original"
-Asistente KFC: "¡Excelente! ¿Qué complemento: Papa Familiar o Ensalada Familiar?"
+Usuário: "Pizza de Pepperoni"
+Assistente Pizza Hut: "Perfeito! E qual o tipo de massa: Pan ou Thin & Crispy?"
 
-Usuario: "Papas"
-Asistente KFC: "¿Y para beber: Coca-Cola o Inca Kola Sin Azúcar de 1 litro?"
+Usuário: "Massa Pan"
+Assistente Pizza Hut: "Certo! Qual acompanhamento: Batata Country ou Cheesy Pops?"
 
-Usuario: "Coca Cola"
-Asistente KFC: "¡Listo! He agregado MDK 6 Piezas Combo (Original, Papa Familiar, Coca-Cola Sin Azúcar 1L) por S/ 29.90"
+Usuário: "Batata"
+Assistente Pizza Hut: "E para beber, qual refrigerante em lata?"
+
+Usuário: "Coca Cola"
+Assistente Pizza Hut: "Pronto! Adicionei sua My Box (Pizza Pepperoni Pan, Batata Country e Coca-Cola) por R$ 35,90."
 ```
 
 ## 🔧 API Endpoints
 
-- `GET /` - Interfaz web principal
-- `WebSocket /ws/{session_id}` - Conexión de chat en tiempo real
-- `GET /api/pedido/{session_id}` - Obtener pedido actual
-- `GET /debug/pedidos` - Ver todos los pedidos en proceso
-- `GET /debug/menu` - Ver menú completo de KFC
+- `GET /` - Interface web principal
+- `WebSocket /ws/{session_id}` - Conexão de chat/voz em tempo real
+- `GET /api/pedido/{session_id}` - Obter pedido atual
+- `GET /debug/pedidos` - Ver todos os pedidos em processo
+- `GET /debug/menu` - Ver cardápio completo (JSON)
 
 ## 🎯 Características Técnicas
 
-- **Framework**: FastAPI con WebSocket
+- **Framework**: FastAPI com WebSocket
 - **LLM**: Google Gemini 2.5 Flash Live
-- **Audio**: PCM streaming bidireccional en español
-- **Frontend**: HTML5, CSS3, JavaScript vanilla
-- **Estado**: In-memory (desarrollo), escalable a base de datos
-- **Despliegue**: Google Cloud Run con auto-escalado
+- **Áudio**: PCM streaming bidirecional em português
+- **Frontend**: HTML5, CSS3, JavaScript Vanilla (sem frameworks pesados)
+- **Estado**: In-memory (gerenciado por sessões), escalável
+- **Implantação**: Docker em Google Cloud Run com auto-escalonamento
 
-## 💰 Costos de Cloud Run
+## 🤝 Contribuições
 
-- **Escalado a cero**: $0 cuando no está en uso
-- **Pago por uso**: Solo pagas por solicitudes y tiempo de procesamiento
-- **Estimado**: Muy bajo para uso moderado (típicamente <$10/mes)
+Contribuições são bem-vindas. Por favor:
+1. Faça um Fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingPizzaFeature`)
+3. Commit seus detalhes (`git commit -m 'Add some Pizza Hut feature'`)
+4. Push para a branch (`git push origin feature/AmazingPizzaFeature`)
+5. Abra um Pull Request
 
-## 🔧 Solución de Problemas
+## 📄 Licença
 
-### Desarrollo Local
-```bash
-# Verificar dependencias
-pip install -r requirements.txt
-
-# Verificar variable de entorno
-echo $GOOGLE_API_KEY
-
-# Ejecutar con logs
-cd app && uvicorn main:app --reload --log-level debug
-```
-
-### Cloud Run
-```bash
-# Ver logs
-gcloud run logs tail kfc-live-agent --region us-central1
-
-# Verificar estado del servicio
-gcloud run services describe kfc-live-agent --region us-central1
-```
-
-## 🤝 Contribuciones
-
-Las contribuciones son bienvenidas. Por favor:
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingKFCFeature`)
-3. Commit tus cambios (`git commit -m 'Add some KFC feature'`)
-4. Push a la rama (`git push origin feature/AmazingKFCFeature`)
-5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia Apache 2.0 - ver el archivo [LICENSE](LICENSE) para más detalles.
+Este projeto está sob a Licença Apache 2.0 - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ---
 
-¡Disfruta tu experiencia con el **Asistente KFC** y los **Miércoles de KFC**! 🍗✨
+Aproveite sua experiência com o **Assistente Pizza Hut**! 🍕✨
 
-**¿Listo para desplegar?** Ejecuta `./deploy.sh` y tendrás tu Asistente KFC en la nube en minutos.
+**Pronto para implantar?** Execute `./deploy.sh` e tenha seu Assistente Pizza Hut na nuvem em minutos.
